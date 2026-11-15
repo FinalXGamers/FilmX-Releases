@@ -273,6 +273,11 @@ function checkDesktopUpdate() {
 
   var appVersion = (userAgent.match(/FilmXDesktop\/(\d+\.\d+\.\d+)/) || [])[1] || '1.0.0';
   var platform = (userAgent.match(/FilmXPlatform\/(win32|darwin|linux)/) || [])[1];
+  if (!platform) {
+    platform = /Windows NT/.test(userAgent) ? 'win32' :
+      /Macintosh|Mac OS X/.test(userAgent) ? 'darwin' :
+        /Linux/.test(userAgent) ? 'linux' : null;
+  }
   var assetPattern = platform === 'win32' ? /-Windows-Setup\.exe$/ :
     platform === 'darwin' ? /-macOS\.dmg$/ :
       platform === 'linux' ? /-Linux\.AppImage$/ : null;
