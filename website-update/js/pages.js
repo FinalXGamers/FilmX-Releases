@@ -377,12 +377,18 @@ pages.watch = function (main, a, q) {
       if (!req) return;
       var p = req.call(wrap);
       var lock = function () {
-        try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function () {}); } catch (e) {}
+        try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('portrait').catch(function () {}); } catch (e) {}
       };
       if (p && p.then) p.then(lock).catch(lock); else lock();
     }
     document.getElementById('fsBtn').onclick = goFull;
     wrap.addEventListener('dblclick', goFull);
+    var unlockOrientation = function () {
+      if (!document.fullscreenElement && screen.orientation && screen.orientation.unlock) {
+        screen.orientation.unlock();
+      }
+    };
+    document.addEventListener('fullscreenchange', unlockOrientation);
 
     try { FMX.progress.set(d.imdbID, { season: season, episode: episode, pos: 0, pct: 0 }); } catch (e) {}
 
@@ -422,7 +428,11 @@ pages.watch = function (main, a, q) {
       loadEpisodes(season);
     }
 
-    return function () { clearTimeout(loadTimer); };
+    return function () {
+      clearTimeout(loadTimer);
+      document.removeEventListener('fullscreenchange', unlockOrientation);
+      if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+    };
   });
 };
 

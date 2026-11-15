@@ -304,16 +304,129 @@ function checkDesktopUpdate() {
       return;
     }
 
-    var dismissedKey = 'fmx:desktop-update-dismissed:' + latest.tag_name;
-    try { if (localStorage.getItem(dismissedKey) === '1') return; } catch (e) {}
-
     var version = latest.tag_name.slice('desktop-v'.length);
     if (window.confirm('FilmX ' + version + ' is available (you have ' + appVersion + '). Download the update?')) {
       window.open(asset.browser_download_url, '_blank', 'noopener');
     }
-    try { localStorage.setItem(dismissedKey, '1'); } catch (e) {}
   }).catch(function (err) {
     console.warn('[FilmX] Desktop update check failed:', err);
+  });
+}
+
+function startNativeUpdateCheck(updater) {
+  var overlay = null, progressBar, statusText, detailsText, retryButton, installButton;
+  var updateInfo;
+
+  function showRequiredUpdate(update) {
+    updateInfo = update;
+    overlay = document.createElement('section');
+    overlay.className = 'fmx-update-lock';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-labelledby', 'fmxUpdateTitle');
+    overlay.innerHTML =
+      '<div class="fmx-update-card"><div class="fmx-update-mark">F</div>' +
+      '<p class="fmx-update-eyebrow">REQUIRED UPDATE</p>' +
+      '<h1 id="fmxUpdateTitle">Update FilmX to continue</h1>' +
+      '<p class="fmx-update-copy">Version ' + esc(update.versionName) +
+      ' is ready. Keep FilmX open while it downloads. You will need to install it to continue.</p>' +
+      '<div class="fmx-update-progress" role="progressbar" aria-label="Update download progress" ' +
+      'aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>' +
+      '<p class="fmx-update-status" aria-live="polite">Starting secure download…</p>' +
+      '<p class="fmx-update-details"></p>' +
+      '<button class="btn btn--pri fmx-update-install" type="button" hidden>Install update</button>' +
+      '<button class="btn btn--pri fmx-update-retry" type="button" hidden>Retry download</button></div>';
+    Array.from(document.body.children).forEach(function (element) { element.inert = true; });
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+    progressBar = overlay.querySelector('.fmx-update-progress');
+    statusText = overlay.querySelector('.fmx-update-status');
+    detailsText = overlay.querySelector('.fmx-update-details');
+    retryButton = overlay.querySelector('.fmx-update-retry');
+    installButton = overlay.querySelector('.fmx-update-install');
+    retryButton.onclick = downloadUpdate;
+    installButton.onclick = installUpdate;
+    downloadUpdate();
+  }
+
+  function formatBytes(bytes) {
+    if (bytes < 1024 * 1024) return Math.max(0, bytes / 1024).toFixed(0) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  function downloadUpdate() {
+    retryButton.hidden = true;
+    installButton.hidden = true;
+    statusText.textContent = 'Downloading the required update…';
+    detailsText.textContent = 'FilmX is unavailable until the update is installed.';
+    updater.downloadUpdate({ apkUrl: updateInfo.apkUrl }).catch(function (error) {
+      statusText.textContent = 'The update download could not start.';
+      detailsText.textContent = error && error.message ? error.message : 'Check your connection and retry.';
+      retryButton.hidden = false;
+    });
+  }
+
+  function installUpdate() {
+    installButton.disabled = true;
+    statusText.textContent = 'Opening the Android installer…';
+    updater.installUpdate().then(function (result) {
+      installButton.disabled = false;
+      if (result && result.permissionRequired) {
+        statusText.textContent = 'Allow FilmX to install updates, then return here.';
+        installButton.textContent = 'Continue installation';
+        installButton.hidden = false;
+      } else {
+        detailsText.textContent = 'Complete the installation to start using FilmX.';
+      }
+    }).catch(function (error) {
+      installButton.disabled = false;
+      statusText.textContent = 'The installer could not be opened.';
+      detailsText.textContent = error && error.message ? error.message : 'Try again to install the update.';
+    });
+  }
+
+  updater.addListener('updateProgress', function (event) {
+    if (!overlay || !event) return;
+    var percent = Number(event.percent);
+    if (percent >= 0) {
+      progressBar.classList.remove('is-indeterminate');
+      progressBar.setAttribute('aria-valuenow', String(percent));
+      progressBar.firstElementChild.style.width = percent + '%';
+      detailsText.textContent = event.totalBytes > 0 ?
+        formatBytes(event.downloadedBytes) + ' of ' + formatBytes(event.totalBytes) :
+        percent + '% downloaded';
+    } else {
+      progressBar.classList.add('is-indeterminate');
+      progressBar.removeAttribute('aria-valuenow');
+      detailsText.textContent = event.downloadedBytes > 0 ?
+        formatBytes(event.downloadedBytes) + ' downloaded' : 'Waiting for download size…';
+    }
+
+    if (event.status === 'paused') {
+      statusText.textContent = 'Download paused. Waiting for a network connection…';
+    } else if (event.status === 'complete') {
+      progressBar.classList.remove('is-indeterminate');
+      progressBar.setAttribute('aria-valuenow', '100');
+      progressBar.firstElementChild.style.width = '100%';
+      statusText.textContent = 'Download complete. Install the update to continue.';
+      detailsText.textContent = 'Your FilmX data stays on this device.';
+      installButton.hidden = false;
+      installButton.focus();
+    } else if (event.status === 'error') {
+      statusText.textContent = 'The required update did not finish downloading.';
+      detailsText.textContent = event.message || 'Check your connection and retry.';
+      retryButton.hidden = false;
+      retryButton.focus();
+    } else if (event.status === 'downloading') {
+      statusText.textContent = 'Downloading the required update…';
+    }
+  });
+
+  updater.checkForUpdate().then(function (update) {
+    if (update && update.available) showRequiredUpdate(update);
+  }).catch(function (error) {
+    console.warn('[FilmX] Automatic update check failed. The update server must return JSON and an APK without a browser challenge.', error);
+    U.toast('Update check failed. ' + (error && error.message ? error.message : 'Please try again later.'), 'err', 6000);
   });
 }
 
@@ -336,10 +449,7 @@ function start() {
 
   if (FMX.isNativeApp && window.Capacitor && window.Capacitor.Plugins &&
       window.Capacitor.Plugins.FilmXUpdater) {
-    window.Capacitor.Plugins.FilmXUpdater.checkForUpdate().catch(function (err) {
-      console.warn('[FilmX] Automatic update check failed. The update server must return JSON and an APK without a browser challenge.', err);
-      U.toast('Update check failed. ' + (err && err.message ? err.message : 'Please try again later.'), 'err', 6000);
-    });
+    startNativeUpdateCheck(window.Capacitor.Plugins.FilmXUpdater);
   }
 
   FMX.installPrompt = null;
