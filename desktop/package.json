@@ -1,0 +1,64 @@
+{
+  "name": "filmx-desktop",
+  "version": "1.0.0",
+  "private": true,
+  "author": "FinalXGamers",
+  "description": "FilmX desktop app",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "dist:windows": "electron-builder --win nsis",
+    "dist:macos": "electron-builder --mac dmg",
+    "dist:linux": "electron-builder --linux AppImage"
+  },
+  "devDependencies": {
+    "electron": "45.3.2",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "com.finalxgamers.filmx.desktop",
+    "productName": "FilmX",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.cjs",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "artifactName": "FilmX-${version}-Windows-Setup.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["universal"]
+        }
+      ],
+      "category": "public.app-category.entertainment",
+      "artifactName": "FilmX-${version}-macOS.${ext}"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        }
+      ],
+      "category": "AudioVideo",
+      "artifactName": "FilmX-${version}-Linux.${ext}"
+    }
+  }
+}
