@@ -66,7 +66,7 @@ window.FMX = window.FMX || {};
     if (document.getElementById('fxDrawer')) return;
     var d = document.createElement('div');
     d.id = 'fxDrawer';
-    var links = FMX.isNativeApp ? LINKS :
+    var links = FMX.isAppSurface ? LINKS :
       LINKS.slice(0, 6).concat([['#/downloads', 'Apps and downloads']], LINKS.slice(6));
     d.innerHTML = links.map(function (l) {
       return '<a href="' + l[0] + '">' + l[1] + '</a>';

@@ -55,7 +55,7 @@ function renderHeader() {
       '<a class="nlink" href="#/genre/action">Genres</a>' +
       '<a class="nlink" href="#/watchlist">Watchlist' + (wl ? '<span class="nlink__badge">' + wl + '</span>' : '') + '</a>' +
       '<a class="nlink" href="#/continue">Continue</a>' +
-      (FMX.isNativeApp ? '' : '<a class="nlink" href="#/downloads">Downloads</a>') +
+      (FMX.isAppSurface ? '' : '<a class="nlink" href="#/downloads">Downloads</a>') +
       '<a class="nlink" href="#/suggest">Feedback</a>' +
       '<a class="nlink" href="#/about">About</a>' +
     '</nav>' +
@@ -103,7 +103,7 @@ function renderFooter() {
     '</div>' +
     '<div><h4>More</h4>' +
       '<a href="#/about">About and settings</a><a href="#/search">Search</a>' +
-      (FMX.isNativeApp ? '' : '<a href="#/downloads">Apps and downloads</a>') +
+      (FMX.isAppSurface ? '' : '<a href="#/downloads">Apps and downloads</a>') +
       '<a href="https://www.omdbapi.com/" target="_blank" rel="noopener">OMDb API</a>' +
       '<a href="https://www.imdb.com/" target="_blank" rel="noopener">IMDb</a>' +
     '</div>' +

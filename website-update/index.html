@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>FilmX · Made By FinalXGamers</title>
+<meta name="description" content="Made By FinalXGamers">
+<meta name="theme-color" content="#080a0f">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/logo-mark.svg">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://image.tmdb.org">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=20261114-menu-3">
+<script>
+(function () {
+  var t = 'dark';
+  try {
+    var p = JSON.parse(localStorage.getItem('fmx:prefs') || '{}');
+    if (p && p.theme) t = p.theme;
+  } catch (e) {}
+  document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
+})();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<nav class="tabbar" id="tabbar" aria-label="Main navigation">
+  <a href="#/" data-tab="/" aria-label="Home">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+    <span>Home</span>
+  </a>
+  <a href="#/movies" data-tab="/movies" aria-label="Movies">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4m-4 6h4m10-6h4m-4 6h4"/></svg>
+    <span>Movies</span>
+  </a>
+  <a href="#/tv" data-tab="/tv" aria-label="TV shows">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m8 2 4 3 4-3M8 11l3 2-3 2z"/></svg>
+    <span>TV</span>
+  </a>
+  <a href="#/watchlist" data-tab="/watchlist" aria-label="Saved titles">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
+    <span>Saved</span>
+  </a>
+  <a href="#/search" data-tab="/search" aria-label="Search">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+    <span>Search</span>
+  </a>
+  <a href="#/suggest" data-tab="/suggest" aria-label="Feedback">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-6.5a7.5 7.5 0 1 1 17-3z"/><path d="M8 11h8m-8 4h5"/></svg>
+    <span>Feedback</span>
+  </a>
+</nav>
+
+<div class="upd" id="upd" hidden>
+  <span class="upd__dot" aria-hidden="true"></span>
+  <span class="upd__tx"><b>Updated daily.</b> If something looks stale, reload once.</span>
+  <span class="upd__btns">
+    <button class="upd__btn upd__btn--go" id="updGo" type="button">Reload</button>
+    <button class="upd__btn" id="updOff" type="button">Don't show</button>
+    <button class="upd__btn upd__btn--x" id="updX" type="button" aria-label="Dismiss">&times;</button>
+  </span>
+</div>
+
+<header id="hdr" class="hdr"></header>
+<div id="toasts" class="toasts" role="status" aria-live="polite"></div>
+<main id="main" class="main" tabindex="-1"></main>
+<footer id="ftr" class="ftr"></footer>
+<div id="modal-root"></div>
+<noscript><p style="padding:24px">FilmX needs JavaScript.</p></noscript>
+
+<div id="diag" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#7f1d1d;color:#fff;
+  font:12px/1.55 ui-monospace,Menlo,Consolas,monospace;padding:10px 14px;max-height:45vh;overflow:auto;white-space:pre-wrap"></div>
+
+<script>
+window.FMX = window.FMX || {};
+FMX.CONFIG = FMX.CONFIG || {};
+FMX.isNativeApp = !!(window.Capacitor &&
+  typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
+FMX.isInstalledPWA = navigator.standalone === true ||
+  (typeof window.matchMedia === 'function' && window.matchMedia('(display-mode: standalone)').matches);
+FMX.isAppSurface = FMX.isNativeApp || !!window.FMX_DESKTOP || FMX.isInstalledPWA;
+document.documentElement.classList.toggle('native-app', FMX.isNativeApp);
+FMX.CONFIG.site = FMX.CONFIG.site || 'FilmX';
+FMX.CONFIG.author = FMX.CONFIG.author || 'FinalXGamers';
+FMX.CONFIG.tagline = FMX.CONFIG.tagline || '';
+FMX.CONFIG.tmdb = FMX.CONFIG.tmdb || 'https://api.themoviedb.org/3/';
+FMX.CONFIG.tmdbImg = FMX.CONFIG.tmdbImg || 'https://image.tmdb.org/t/p/';
+FMX.CONFIG.tmdbProxy = FMX.CONFIG.tmdbProxy || '';
+FMX.CONFIG.omdb = FMX.CONFIG.omdb || 'https://www.omdbapi.com/';
+FMX.CONFIG.cacheTTL = FMX.CONFIG.cacheTTL || 21600000;
+FMX.CONFIG.GENRES = FMX.CONFIG.GENRES || {};
+FMX.CONFIG.servers = FMX.CONFIG.servers || [];
+</script>
+
+<script>
+(function () {
+  var el = document.getElementById('upd');
+  if (!el || FMX.isAppSurface) return;
+  try {
+    if (localStorage.getItem('fmx:updOff:v2') === '1') return;
+    if (sessionStorage.getItem('fmx:updHidden:v2') === '1') return;
+  } catch (e) {}
+  el.hidden = false;
+  document.getElementById('updX').onclick = function () {
+    el.remove();
+    try { sessionStorage.setItem('fmx:updHidden:v2', '1'); } catch (e) {}
+  };
+  document.getElementById('updOff').onclick = function () {
+    el.remove();
+    try { localStorage.setItem('fmx:updOff:v2', '1'); } catch (e) {}
+  };
+  document.getElementById('updGo').onclick = function () { location.reload(); };
+})();
+</script>
+
+<script>
+(function () {
+  if (!('serviceWorker' in navigator)) return;
+  var hadWorker = !!navigator.serviceWorker.controller;
+  var reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function () {
+    if (!hadWorker || reloading) return;
+    reloading = true;
+    location.reload();
+  });
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').then(function (reg) {
+      reg.update();
+      setInterval(function () { reg.update(); }, 60000);
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) reg.update();
+      });
+    }).catch(function () {});
+  });
+})();
+</script>
+
+<script>
+/* genre dropdown only — the app's own search stays untouched */
+(function () {
+  function buildGenres(hdr) {
+    var link = null;
+    Array.prototype.forEach.call(hdr.querySelectorAll('a'), function (a) {
+      var t = (a.textContent || '').trim().toLowerCase();
+      if (a.getAttribute('href') === '#/genre' || t === 'genres' || t === 'genre') link = a;
+    });
+    if (!link || !window.FMX || !FMX.GENRES || !Object.keys(FMX.GENRES).length) return;
+
+    var drop = document.createElement('div');
+    drop.className = 'gdrop';
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'gbtn';
+    btn.innerHTML = 'Genres <span class="gcaret">▾</span>';
+    var menu = document.createElement('div');
+    menu.className = 'gmenu';
+    Object.keys(FMX.GENRES).forEach(function (k) {
+      var a = document.createElement('a');
+      a.href = '#/genre/' + k;
+      a.textContent = FMX.GENRES[k].name;
+      menu.appendChild(a);
+    });
+    drop.appendChild(btn);
+    drop.appendChild(menu);
+    link.replaceWith(drop);
+    btn.onclick = function (e) { e.stopPropagation(); drop.classList.toggle('is-open'); };
+    document.addEventListener('click', function () { drop.classList.remove('is-open'); });
+    menu.addEventListener('click', function () { drop.classList.remove('is-open'); });
+  }
+
+  function fixSearch(hdr) {
+    var form = hdr.querySelector('form');
+    if (!form || form.dataset.fx) return;
+    form.dataset.fx = '1';
+
+    form.style.cssText = 'display:flex!important;flex-direction:row!important;align-items:center!important;' +
+      'flex-wrap:nowrap!important;gap:7px;flex:0 0 190px!important;width:190px!important;' +
+      'height:32px!important;min-height:32px!important;max-height:32px!important;' +
+      'padding:0 10px!important;margin:0!important;border-radius:9px!important;overflow:hidden!important;' +
+      'background:var(--surface-2)!important;border:1px solid var(--line)!important';
+
+    Array.prototype.forEach.call(form.children, function (el) {
+      if (el.tagName === 'INPUT') {
+        el.style.cssText = 'flex:1 1 auto!important;width:100%!important;height:30px!important;' +
+          'min-height:0!important;line-height:30px!important;padding:0!important;margin:0!important;' +
+          'border:0!important;background:transparent!important;box-shadow:none!important;' +
+          'font-size:12.5px!important;color:inherit!important;order:2';
+      } else {
+        el.style.cssText = 'width:13px!important;height:13px!important;flex:0 0 auto!important;' +
+          'opacity:.5;order:1';
+      }
+    });
+  }
+
+  function sync() {
+    var hdr = document.getElementById('hdr');
+    if (!hdr || !hdr.children.length) return;
+    fixSearch(hdr);
+    if (!hdr.querySelector('.gdrop')) buildGenres(hdr);
+  }
+
+  sync();
+  var n = 0;
+  var t = setInterval(function () { sync(); if (++n > 300) clearInterval(t); }, 200);
+})();
+</script>
+
+<script>
+(function () {
+  'use strict';
+  var DEBUG = /[?&]debug=1/.test(location.search);
+  var FILES = ['js/data.js', 'js/util.js', 'js/store.js', 'js/api.js',
+               'js/subs.js', 'js/ui.js', 'js/pages.js', 'js/app.js',
+               'js/brand.js', 'js/suggest.js'];
+  var box = document.getElementById('diag');
+  var lines = [], current = '', failed = [];
+
+  function show(t) { lines.push(t); if (DEBUG) { box.style.display = 'block'; box.textContent = lines.join('\n'); } }
+
+  function log(kind, msg, line) {
+    var file = current || 'unknown';
+    console.warn('[FilmX] ' + kind + ' in ' + file + ': ' + msg);
+    show(kind + ' in ' + file + ': ' + msg);
+    var body = JSON.stringify({ kind: kind, msg: msg, file: file, line: line || 0, page: location.href });
+    try {
+      if (navigator.sendBeacon) navigator.sendBeacon('log.php', new Blob([body], { type: 'application/json' }));
+      else fetch('log.php', { method: 'POST', body: body, keepalive: true, headers: { 'Content-Type': 'application/json' } }).catch(function () {});
+    } catch (e) {}
+  }
+
+  window.addEventListener('error', function (e) { log('ERROR', e.message || 'unknown', e.lineno); });
+  window.addEventListener('unhandledrejection', function (e) { log('REJECTION', (e.reason && e.reason.message) || String(e.reason)); });
+
+  function next(i) {
+    if (i >= FILES.length) { verify(); return; }
+    current = FILES[i];
+    var s = document.createElement('script');
+    s.src = FILES[i];
+    s.onerror = function () { failed.push(FILES[i]); log('LOAD FAILED', FILES[i]); next(i + 1); };
+    s.onload = function () { next(i + 1); };
+    document.body.appendChild(s);
+  }
+
+  function checkCSS() {
+    var d = document.createElement('div');
+    d.className = 'wrap';
+    d.style.position = 'absolute'; d.style.visibility = 'hidden';
+    document.body.appendChild(d);
+    var pad = getComputedStyle(d).paddingLeft;
+    document.body.removeChild(d);
+    if (pad === '0px' || pad === '') log('WARN', 'css/style.css did not load');
+  }
+
+  function verify() {
+    setTimeout(function () {
+      var missing = [];
+      if (!window.FMX) missing.push('window.FMX never created');
+      else {
+        if (!FMX.CONFIG.author) missing.push('FMX.CONFIG.author (data.js did not run)');
+        if (!FMX.prefs) missing.push('FMX.prefs (store.js)');
+        if (!FMX.esc) missing.push('FMX.esc (util.js)');
+        if (!FMX.pages) missing.push('FMX.pages (pages.js)');
+        if (!FMX.ui) missing.push('FMX.ui (ui.js)');
+        if (!FMX.booted && !document.querySelector('#hdr .brand')) missing.push('header did not render (app.js)');
+      }
+      if (!document.querySelector('#main').children.length) missing.push('no page rendered');
+      if (!missing.length && !failed.length) { box.style.display = 'none'; return; }
+      if (failed.length) log('BOOT', 'files did not load: ' + failed.join(', '));
+      if (missing.length) log('BOOT', 'missing pieces: ' + missing.join(', '));
+    }, 1200);
+  }
+
+  checkCSS();
+  next(0);
+})();
+</script>
+</body>
+</html>

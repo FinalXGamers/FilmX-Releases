@@ -101,7 +101,7 @@ pages.downloads = function (main) {
         '<div class="download-card__top"><div class="download-card__icon download-card__icon--android">' + icon('phone', 24) + '</div>' +
           '<span class="download-card__tag">ANDROID</span></div><h2>FilmX for Android</h2>' +
         '<p>Install the Android app on your phone or tablet.</p>' +
-        '<a class="btn btn--pri" href="' + esc(FMX.CONFIG.androidDownload) + '" download>' + icon('download', 16) + 'Download APK</a>' +
+        '<a class="btn btn--pri" href="' + esc(FMX.CONFIG.androidDownload) + '" target="_blank" rel="noopener">' + icon('download', 16) + 'Download APK</a>' +
         '<span class="download-card__note">Android 7.0 or later · APK installer</span>' +
       '</article>' +
       '<article class="download-card">' +
@@ -141,6 +141,7 @@ pages.downloads = function (main) {
     '<section class="download-help"><div class="download-help__icon">' + icon('message', 21) + '</div>' +
       '<div><h2>Need help installing?</h2><p>Tell us which device you use and we’ll help.</p></div>' +
       '<a class="btn btn--secondary" href="#/suggest">Contact FilmX support</a></section>' +
+      '<p class="download-card__note" style="text-align:center"><a href="https://github.com/FinalXGamers/FilmX-Releases/releases" target="_blank" rel="noopener">View all FilmX installers and releases on GitHub</a></p>' +
     '</div>';
 };
 
