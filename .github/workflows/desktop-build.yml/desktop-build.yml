@@ -1,0 +1,85 @@
+name: Build FilmX desktop apps
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Desktop release version (for example 1.0.0)
+        required: true
+        default: "1.0.0"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows
+            runner: windows-latest
+            command: dist:windows
+            asset: FilmX-${{ inputs.version }}-Windows-Setup.exe
+          - platform: macOS
+            runner: macos-latest
+            command: dist:macos
+            asset: FilmX-${{ inputs.version }}-macOS.dmg
+          - platform: Linux
+            runner: ubuntu-latest
+            command: dist:linux
+            asset: FilmX-${{ inputs.version }}-Linux.AppImage
+    runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - name: Check out release app
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build installer
+        run: npm run ${{ matrix.command }}
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: FilmX-${{ matrix.platform }}
+          path: desktop/dist/${{ matrix.asset }}
+          if-no-files-found: error
+          retention-days: 1
+
+  release:
+    name: Publish desktop installers
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download installers
+        uses: actions/download-artifact@v4
+        with:
+          pattern: FilmX-*
+          path: release-assets
+          merge-multiple: true
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: desktop-v${{ inputs.version }}
+          name: FilmX desktop ${{ inputs.version }}
+          body: |
+            FilmX desktop installers for Windows, macOS, and Linux.
+
+            The app opens the live FilmX website and requires an internet connection.
+          files: release-assets/*
+          make_latest: false
+          fail_on_unmatched_files: true
