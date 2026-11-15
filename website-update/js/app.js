@@ -44,7 +44,7 @@ function renderHeader() {
         '<path d="M19.6 19.4 L28.4 22 L19.6 24.6 Z" fill="#080a0f"/>' +
       '</svg>' +
       '<span class="brand__txt">' +
-        '<span class="brand__name">Free<em>Movies</em>X</span>' +
+        '<span class="brand__name">Film<em>X</em></span>' +
         '<span class="brand__sub">made by ' + esc(FMX.CONFIG.author) + '</span>' +
       '</span>' +
     '</a>' +
@@ -85,7 +85,7 @@ function renderHeader() {
 function renderFooter() {
   $('#ftr').innerHTML = '<div class="wrap"><div class="ftr__grid">' +
     '<div>' +
-      '<img src="assets/logo.svg" alt="FreeMoviesX" style="width:210px;height:auto;margin-bottom:10px" ' +
+      '<img src="assets/logo.svg" alt="FilmX, Made By FinalXGamers" style="width:210px;height:auto;margin-bottom:10px" ' +
         'onerror="this.style.display=\'none\'">' +
       '<p class="small dim" style="max-width:34ch">Fast, free, clutter-free movie discovery. Built by ' +
         esc(FMX.CONFIG.author) + '.</p>' +
@@ -269,10 +269,14 @@ function compareVersions(a, b) {
 
 function checkDesktopUpdate() {
   var userAgent = navigator.userAgent || '';
-  if (userAgent.indexOf('Electron/') === -1) return;
+  var desktopInfo = window.FMX_DESKTOP;
+  var isElectron = userAgent.indexOf('Electron/') !== -1;
+  if (!isElectron && !desktopInfo) return;
 
-  var appVersion = (userAgent.match(/FilmXDesktop\/(\d+\.\d+\.\d+)/) || [])[1] || '1.0.0';
-  var platform = (userAgent.match(/FilmXPlatform\/(win32|darwin|linux)/) || [])[1];
+  var appVersion = (desktopInfo && desktopInfo.version) ||
+    (userAgent.match(/FilmXDesktop\/(\d+\.\d+\.\d+)/) || [])[1] || '1.0.0';
+  var platform = (desktopInfo && desktopInfo.platform) ||
+    (userAgent.match(/FilmXPlatform\/(win32|darwin|linux)/) || [])[1];
   if (!platform) {
     platform = /Windows NT/.test(userAgent) ? 'win32' :
       /Macintosh|Mac OS X/.test(userAgent) ? 'darwin' :
@@ -292,7 +296,8 @@ function checkDesktopUpdate() {
   }).then(function (releases) {
     var latest = (Array.isArray(releases) ? releases : []).filter(function (release) {
       return release && !release.draft && !release.prerelease &&
-        /^desktop-v\d+\.\d+\.\d+$/.test(release.tag_name || '');
+        /^desktop-v\d+\.\d+\.\d+$/.test(release.tag_name || '') &&
+        (release.assets || []).some(function (item) { return assetPattern.test(item.name || ''); });
     }).sort(function (a, b) {
       return compareVersions(b.tag_name.slice('desktop-v'.length), a.tag_name.slice('desktop-v'.length));
     })[0];
@@ -306,7 +311,11 @@ function checkDesktopUpdate() {
 
     var version = latest.tag_name.slice('desktop-v'.length);
     if (window.confirm('FilmX ' + version + ' is available (you have ' + appVersion + '). Download the update?')) {
-      window.open(asset.browser_download_url, '_blank', 'noopener');
+      if (desktopInfo && typeof desktopInfo.openExternal === 'function') {
+        desktopInfo.openExternal(asset.browser_download_url);
+      } else {
+        window.open(asset.browser_download_url, '_blank', 'noopener');
+      }
     }
   }).catch(function (err) {
     console.warn('[FilmX] Desktop update check failed:', err);

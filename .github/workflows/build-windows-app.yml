@@ -1,0 +1,91 @@
+name: Build small FilmX Windows app
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Desktop release version
+        required: true
+        default: "1.0.2"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Windows installer
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: desktop/tauri
+    steps:
+      - name: Check out release app
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Verify release version
+        shell: pwsh
+        run: |
+          $config = Get-Content -Raw "src-tauri\tauri.conf.json" | ConvertFrom-Json
+          if ($config.version -ne "${{ inputs.version }}") {
+            throw "Workflow version ${{ inputs.version }} does not match app version $($config.version)."
+          }
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: desktop/tauri/src-tauri -> target
+
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --version "^2" --locked
+
+      - name: Generate FilmX installer icons
+        run: cargo tauri icon ../assets/icon-512.png --output src-tauri/icons
+
+      - name: Build branded NSIS wizard installer
+        run: cargo tauri build --bundles nsis
+
+      - name: Name Windows installer
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem -LiteralPath "src-tauri\target\release\bundle\nsis" -Filter "*-setup.exe" | Select-Object -First 1
+          if (-not $installer) { throw "Tauri did not produce an NSIS installer." }
+          $name = "FilmX-${{ inputs.version }}-Windows-Setup.exe"
+          $destination = Join-Path $installer.DirectoryName $name
+          Move-Item -LiteralPath $installer.FullName -Destination $destination -Force
+          $size = (Get-Item -LiteralPath $destination).Length
+          Write-Host "Installer size: $size bytes"
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: FilmX-Windows
+          path: desktop/tauri/src-tauri/target/release/bundle/nsis/FilmX-${{ inputs.version }}-Windows-Setup.exe
+          if-no-files-found: error
+          retention-days: 1
+
+  release:
+    name: Publish Windows installer
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download installer
+        uses: actions/download-artifact@v4
+        with:
+          name: FilmX-Windows
+          path: release-assets
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: desktop-v${{ inputs.version }}
+          name: FilmX desktop ${{ inputs.version }}
+          body: |
+            FilmX for Windows in a small installer with a branded setup wizard.
+
+            Uses the system WebView2 runtime instead of bundling Chromium. Windows 10 and 11 include WebView2; an internet connection is required to use FilmX.
+          files: release-assets/*
+          make_latest: false
+          fail_on_unmatched_files: true
