@@ -1,7 +1,7 @@
 {
   "name": "FilmX",
   "short_name": "FilmX",
-  "description": "FilmX Made By FinalXGamers.",
+  "description": "FilmX",
   "id": "/",
   "start_url": "./",
   "scope": "./",

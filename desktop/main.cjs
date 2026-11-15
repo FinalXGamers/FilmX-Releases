@@ -29,6 +29,10 @@ function createWindow() {
     }
   });
 
+  window.webContents.on('page-title-updated', (event) => {
+    event.preventDefault();
+    window.setTitle('FilmX · Made By FinalXGamers');
+  });
   window.once('ready-to-show', () => window.show());
   window.webContents.setWindowOpenHandler(({ url }) => {
     openExternal(url);

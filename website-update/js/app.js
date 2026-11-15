@@ -45,7 +45,6 @@ function renderHeader() {
       '</svg>' +
       '<span class="brand__txt">' +
         '<span class="brand__name">Film<em>X</em></span>' +
-        '<span class="brand__sub">made by ' + esc(FMX.CONFIG.author) + '</span>' +
       '</span>' +
     '</a>' +
     '<nav class="hdr__nav" id="nav">' +
@@ -85,10 +84,9 @@ function renderHeader() {
 function renderFooter() {
   $('#ftr').innerHTML = '<div class="wrap"><div class="ftr__grid">' +
     '<div>' +
-      '<img src="assets/logo.svg" alt="FilmX, Made By FinalXGamers" style="width:210px;height:auto;margin-bottom:10px" ' +
+      '<img src="assets/logo.svg" alt="FilmX" style="width:210px;height:auto;margin-bottom:10px" ' +
         'onerror="this.style.display=\'none\'">' +
-      '<p class="small dim" style="max-width:34ch">Fast, free, clutter-free movie discovery. Built by ' +
-        esc(FMX.CONFIG.author) + '.</p>' +
+      '<p class="small dim" style="max-width:34ch">Fast, free, clutter-free movie discovery.</p>' +
       '<div class="ftr__badges"><span class="pill">No account</span><span class="pill">PWA ready</span>' +
       '<span class="pill">Offline catalogue</span></div>' +
     '</div>' +
@@ -109,8 +107,7 @@ function renderFooter() {
     '</div>' +
   '</div>' +
   '<div class="ftr__bot">' +
-    '<span>&copy; ' + new Date().getFullYear() + ' ' + esc(FMX.CONFIG.site) +
-      ' &middot; <b>Made By ' + esc(FMX.CONFIG.author) + '</b></span>' +
+    '<span>&copy; ' + new Date().getFullYear() + ' ' + esc(FMX.CONFIG.site) + '</span>' +
     '<span>Metadata via OMDb &middot; video embedded from third-party players</span>' +
   '</div></div>';
 }

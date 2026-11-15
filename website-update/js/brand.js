@@ -3,7 +3,7 @@ window.FMX = window.FMX || {};
 (function (FMX) {
   'use strict';
 
-  var TITLE = 'FilmX Made By FinalXGamers';
+  var TITLE = 'FilmX · Made By FinalXGamers';
 
   var RULES = [
     [/TMDB API key \(v3\)/g, 'API key'],

@@ -36,7 +36,7 @@ fn main() {
             );
 
             WebviewWindowBuilder::new(app, "main", WebviewUrl::External(url))
-                .title("FilmX")
+                .title("FilmX · Made By FinalXGamers")
                 .inner_size(1440.0, 920.0)
                 .min_inner_size(900.0, 640.0)
                 .initialization_script(script)
