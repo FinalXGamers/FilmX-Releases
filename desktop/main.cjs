@@ -34,6 +34,9 @@ function createWindow() {
     openExternal(url);
     return { action: 'deny' };
   });
+  window.webContents.setUserAgent(
+    window.webContents.getUserAgent() + ' FilmXDesktop/' + app.getVersion() + ' FilmXPlatform/' + process.platform
+  );
   window.webContents.on('will-navigate', (event, url) => {
     if (new URL(url).origin !== FILMX_ORIGIN) {
       event.preventDefault();

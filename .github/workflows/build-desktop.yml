@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Desktop release version (for example 1.0.0)
+        description: Desktop release version (must match desktop/package.json)
         required: true
-        default: "1.0.0"
+        default: "1.0.1"
 
 permissions:
   contents: write
