@@ -108,7 +108,7 @@ pages.downloads = function (main) {
         '<div class="download-card__top"><div class="download-card__icon">' + icon('monitor', 24) + '</div>' +
           '<span class="download-card__tag">WINDOWS</span></div><h2>FilmX for Windows</h2>' +
         '<p>Install FilmX as a desktop app with Start Menu and desktop shortcuts.</p>' +
-        '<a class="btn btn--secondary" href="https://github.com/FinalXGamers/FilmX-Releases/releases/download/desktop-v1.0.2/FilmX-1.0.2-Windows-Setup.exe">' +
+        '<a class="btn btn--secondary" href="https://github.com/FinalXGamers/FilmX-Releases/releases/download/desktop-v1.0.3/FilmX-1.0.3-Windows-Setup.exe">' +
           icon('download', 16) + 'Download Windows app</a>' +
         '<span class="download-card__note">Windows 10 or later · 64-bit installer · Internet required</span>' +
       '</article>' +

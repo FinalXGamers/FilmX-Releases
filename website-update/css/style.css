@@ -476,6 +476,20 @@ html.native-app .download-grid{grid-template-columns:repeat(auto-fit,minmax(min(
   .tabbar a{font-size:9.5px}
 }
 
+@media (max-width:420px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+  #hdr .hdr__in,#hdr>div{width:100%;min-width:0;gap:8px;padding-inline:10px}
+  #hdr .brand__sub{display:none}
+  #hdr .hdr__spacer{min-width:0}
+  #hdr .hdr__tools{min-width:0;gap:6px!important}
+  #hdr .hdr__tools>*{width:34px!important;min-width:34px!important;max-width:34px!important;
+    height:34px!important;flex:0 0 34px!important}
+  html.native-app #hdr .hdr__tools>*{width:38px!important;min-width:38px!important;
+    max-width:38px!important;height:44px!important;flex-basis:38px!important}
+  .main,.wrap,.grid,.sg,.sg__layout,#ftr,.ftr__grid{width:100%;min-width:0;max-width:100%}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,104px),1fr))}
+}
+
 .sg{max-width:1050px;margin:6px auto 28px}
 .sg__hero{position:relative;display:flex;align-items:center;gap:18px;margin-bottom:20px;padding:24px 26px;
   overflow:hidden;border:1px solid var(--line-2);border-radius:20px;
