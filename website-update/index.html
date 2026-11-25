@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://image.tmdb.org">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261120-sources-boxes-1">
+<link rel="stylesheet" href="css/style.css?v=20261125-player-notice-1">
 <script>
 (function () {
   var t = 'dark';
@@ -55,15 +55,10 @@
   </a>
 </nav>
 
-<div class="upd" id="upd" hidden>
-  <span class="upd__dot" aria-hidden="true"></span>
-  <span class="upd__tx"><b>Updated daily.</b> If something looks stale, reload once.</span>
-  <span class="upd__btns">
-    <button class="upd__btn upd__btn--go" id="updGo" type="button">Reload</button>
-    <button class="upd__btn" id="updOff" type="button">Don't show</button>
-    <button class="upd__btn upd__btn--x" id="updX" type="button" aria-label="Dismiss">&times;</button>
-  </span>
-</div>
+<aside class="blocker-notice" id="blockerNotice" hidden role="note">
+  <p>Third-party players may show pop-ups. If your browser supports it, a reputable content-blocking extension may reduce them.</p>
+  <a href="https://ublockorigin.com/" target="_blank" rel="noopener noreferrer">Get an ad blocker</a>
+</aside>
 
 <header id="hdr" class="hdr"></header>
 <div id="toasts" class="toasts" role="status" aria-live="polite"></div>
@@ -99,22 +94,8 @@ FMX.CONFIG.servers = FMX.CONFIG.servers || [];
 
 <script>
 (function () {
-  var el = document.getElementById('upd');
-  if (!el || FMX.isAppSurface) return;
-  try {
-    if (localStorage.getItem('fmx:updOff:v2') === '1') return;
-    if (sessionStorage.getItem('fmx:updHidden:v2') === '1') return;
-  } catch (e) {}
-  el.hidden = false;
-  document.getElementById('updX').onclick = function () {
-    el.remove();
-    try { sessionStorage.setItem('fmx:updHidden:v2', '1'); } catch (e) {}
-  };
-  document.getElementById('updOff').onclick = function () {
-    el.remove();
-    try { localStorage.setItem('fmx:updOff:v2', '1'); } catch (e) {}
-  };
-  document.getElementById('updGo').onclick = function () { location.reload(); };
+  var notice = document.getElementById('blockerNotice');
+  if (notice && !FMX.isAppSurface) notice.hidden = false;
 })();
 </script>
 

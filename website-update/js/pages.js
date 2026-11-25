@@ -361,10 +361,8 @@ pages.watch = function (main, a, q) {
 
     function mountFrame() {
       var url = srcFor(server);
-      var iframeSandbox = FMX.isNativeApp || FMX.isDesktopApp ? '' :
-        ' sandbox="allow-forms allow-scripts allow-same-origin allow-presentation"';
-      frameHost.innerHTML = '<iframe id="playerFrame" src="' + esc(url) + '"' + iframeSandbox +
-        ' style="width:100%;height:100%;border:0;display:block" ' +
+      frameHost.innerHTML = '<iframe id="playerFrame" src="' + esc(url) +
+        '" style="width:100%;height:100%;border:0;display:block" ' +
         'allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen title="Video player"></iframe>';
       if (extBtn) extBtn.href = url;
       markSource();
