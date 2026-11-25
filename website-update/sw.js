@@ -1,4 +1,4 @@
-const VERSION = 'fmx-v19';
+const VERSION = 'fmx-v21';
 
 const CORE = [
   './', 'index.html', 'css/style.css',

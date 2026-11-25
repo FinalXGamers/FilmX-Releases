@@ -313,6 +313,15 @@ pages.watch = function (main, a, q) {
     var retried = false, loadTimer = null;
     var srcFor = function (s) { return isTV ? s.tv(ids, season, episode) : s.movie(ids); };
 
+    var boxesHTML = servers.map(function (s) {
+      return '<div class="srcbox' + (s.id === server.id ? ' is-on' : '') + '" data-fx-trim="1">' +
+        '<button type="button" class="srcbox__pick" data-server="' + esc(s.id) + '">' + esc(s.name) + '</button>' +
+        (FMX.isAppSurface ? '' :
+          '<a class="srcbox__ext" href="' + esc(srcFor(s)) + '" target="_blank" rel="noopener" ' +
+          'aria-label="Open ' + esc(s.name) + ' in a new tab">' + icon('external', 12) + '</a>') +
+        '</div>';
+    }).join('');
+
     main.innerHTML = '<div class="wrap">' +
       '<a class="btn btn--ghost btn--sm" href="#/title/' + esc(d.imdbID) + '" style="margin-bottom:14px">' + icon('back', 14) + 'Back</a>' +
       '<div class="results-head"><div><h1 style="font-size:clamp(18px,2.6vw,26px)">' + esc(d.Title) + '</h1>' +
@@ -323,12 +332,14 @@ pages.watch = function (main, a, q) {
       '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">' +
       '<path d="M4 9V4h5M20 15v5h-5M20 9V4h-5M4 15v5h5"/></svg></button></div></div>' +
       '<div class="banner banner--warn" id="playerWarn" hidden>' + icon('warn', 15) +
-      '<span>Source not responding. Pick another below.</span></div>' +
-      '<div class="srcbar"><label class="srcbar__lbl">Source</label>' +
-      '<select class="select select--sm" id="srcSelect">' +
-      servers.map(function (s) { return '<option value="' + esc(s.id) + '">' + esc(s.name) + '</option>'; }).join('') +
-      '</select>' + (FMX.isAppSurface ? '' :
-        '<a class="btn btn--sm" id="extBtn" target="_blank" rel="noopener">' + icon('external', 13) + 'New tab</a>') + '</div>' +
+      '<span>Source not responding. Pick another box below.</span></div>' +
+      '<div class="srcbar">' +
+        '<div class="srcbar__hd"><span class="srcbar__lbl">' + servers.length + ' sources · pick one</span>' +
+        (FMX.isAppSurface ? '' :
+          '<a class="btn btn--sm" id="extBtn" target="_blank" rel="noopener">' + icon('external', 13) + 'New tab</a>') +
+        '</div>' +
+        '<div class="srcgrid" id="srcGrid" data-fx-trim="1">' + boxesHTML + '</div>' +
+      '</div>' +
       (isTV ? '<div class="panel" style="margin-top:16px"><div class="panel__hd"><h3>Episodes</h3></div>' +
         '<div class="panel__bd" id="epPanel"><div class="spinner"></div></div></div>' : '') + '</div>';
 
@@ -336,16 +347,24 @@ pages.watch = function (main, a, q) {
 
     var frameHost = document.getElementById('frameHost');
     var warnEl = document.getElementById('playerWarn');
-    var sel = document.getElementById('srcSelect');
     var extBtn = document.getElementById('extBtn');
     var wrap = document.getElementById('playerWrap');
+    var grid = document.getElementById('srcGrid');
+
+    function markSource() {
+      var boxes = grid ? grid.children : [];
+      for (var i = 0; i < boxes.length; i++) {
+        var pick = boxes[i].querySelector('[data-server]');
+        boxes[i].classList.toggle('is-on', !!pick && pick.getAttribute('data-server') === server.id);
+      }
+    }
 
     function mountFrame() {
       var url = srcFor(server);
-      frameHost.innerHTML = '<iframe id="playerFrame" src="' + esc(url) + '" style="width:100%;height:100%;border:0;display:block" ' +
+      frameHost.innerHTML = '<iframe id="playerFrame" src="' + esc(url) + '" sandbox="allow-forms allow-scripts allow-same-origin allow-presentation" style="width:100%;height:100%;border:0;display:block" ' +
         'allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen title="Video player"></iframe>';
       if (extBtn) extBtn.href = url;
-      if (sel) sel.value = server.id;
+      markSource();
       FMX.prefs.set('server', server.id);
       if (warnEl) warnEl.hidden = true;
       clearTimeout(loadTimer);
@@ -367,8 +386,12 @@ pages.watch = function (main, a, q) {
 
     mountFrame();
 
-    if (sel) sel.onchange = function (e) {
-      server = servers.filter(function (s) { return s.id === e.target.value; })[0] || server;
+    if (grid) grid.onclick = function (e) {
+      var btn = e.target.closest('[data-server]');
+      if (!btn) return;
+      var pick = servers.filter(function (s) { return s.id === btn.getAttribute('data-server'); })[0];
+      if (!pick || pick.id === server.id) return;
+      server = pick;
       retried = false;
       mountFrame();
     };
