@@ -80,9 +80,10 @@ window.FMX = window.FMX || {};
 FMX.CONFIG = FMX.CONFIG || {};
 FMX.isNativeApp = !!(window.Capacitor &&
   typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
+FMX.isDesktopApp = !!window.FMX_DESKTOP || /FilmXDesktop\/\d+\.\d+\.\d+/.test(navigator.userAgent || '');
 FMX.isInstalledPWA = navigator.standalone === true ||
   (typeof window.matchMedia === 'function' && window.matchMedia('(display-mode: standalone)').matches);
-FMX.isAppSurface = FMX.isNativeApp || !!window.FMX_DESKTOP || FMX.isInstalledPWA;
+FMX.isAppSurface = FMX.isNativeApp || FMX.isDesktopApp || FMX.isInstalledPWA;
 document.documentElement.classList.toggle('native-app', FMX.isNativeApp);
 FMX.CONFIG.site = FMX.CONFIG.site || 'FilmX';
 FMX.CONFIG.author = FMX.CONFIG.author || 'FinalXGamers';

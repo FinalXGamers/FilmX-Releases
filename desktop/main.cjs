@@ -13,6 +13,26 @@ function openExternal(url) {
   }
 }
 
+function isDesktopUpdateUrl(url) {
+  const assetByPlatform = {
+    win32: 'Windows-Setup\\.exe',
+    darwin: 'macOS\\.dmg',
+    linux: 'Linux\\.AppImage'
+  };
+  const asset = assetByPlatform[process.platform];
+  if (!asset) return false;
+
+  try {
+    const parsed = new URL(url);
+    const match = parsed.pathname.match(
+      new RegExp('^/FinalXGamers/FilmX-Releases/releases/download/desktop-v(\\d+\\.\\d+\\.\\d+)/FilmX-(\\d+\\.\\d+\\.\\d+)-' + asset + '$')
+    );
+    return parsed.origin === 'https://github.com' && !!match && match[1] === match[2];
+  } catch {
+    return false;
+  }
+}
+
 function createWindow() {
   const window = new BrowserWindow({
     width: 1440,
@@ -35,7 +55,7 @@ function createWindow() {
   });
   window.once('ready-to-show', () => window.show());
   window.webContents.setWindowOpenHandler(({ url }) => {
-    openExternal(url);
+    if (isDesktopUpdateUrl(url)) openExternal(url);
     return { action: 'deny' };
   });
   window.webContents.setUserAgent(
@@ -44,7 +64,6 @@ function createWindow() {
   window.webContents.on('will-navigate', (event, url) => {
     if (new URL(url).origin !== FILMX_ORIGIN) {
       event.preventDefault();
-      openExternal(url);
     }
   });
   window.loadURL(FILMX_ORIGIN);

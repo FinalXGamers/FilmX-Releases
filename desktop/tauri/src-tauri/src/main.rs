@@ -25,6 +25,51 @@ fn open_external(url: &Url) {
     }
 }
 
+fn is_desktop_update_url(url: &Url) -> bool {
+    let asset = match PLATFORM {
+        "win32" => "Windows-Setup.exe",
+        "darwin" => "macOS.dmg",
+        "linux" => "Linux.AppImage",
+        _ => return false,
+    };
+    let segments: Vec<_> = match url.path_segments() {
+        Some(segments) => segments.collect(),
+        None => return false,
+    };
+    if url.scheme() != "https"
+        || url.host_str() != Some("github.com")
+        || segments.len() != 6
+        || segments[0] != "FinalXGamers"
+        || segments[1] != "FilmX-Releases"
+        || segments[2] != "releases"
+        || segments[3] != "download"
+    {
+        return false;
+    }
+
+    let release_version = match segments[4].strip_prefix("desktop-v") {
+        Some(version) if is_semver(version) => version,
+        _ => return false,
+    };
+    let asset_version = match segments[5]
+        .strip_prefix("FilmX-")
+        .and_then(|name| name.strip_suffix(&format!("-{asset}")))
+    {
+        Some(version) if is_semver(version) => version,
+        _ => return false,
+    };
+
+    release_version == asset_version
+}
+
+fn is_semver(version: &str) -> bool {
+    let parts: Vec<_> = version.split('.').collect();
+    parts.len() == 3
+        && parts
+            .iter()
+            .all(|part| !part.is_empty() && part.bytes().all(|byte| byte.is_ascii_digit()))
+}
+
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
@@ -44,13 +89,12 @@ fn main() {
                     if url.origin().ascii_serialization() == FILMX_ORIGIN {
                         return true;
                     }
-                    open_external(url);
+                    if is_desktop_update_url(url) {
+                        open_external(url);
+                    }
                     false
                 })
-                .on_new_window(|url, _| {
-                    open_external(&url);
-                    NewWindowResponse::Deny
-                })
+                .on_new_window(|_, _| NewWindowResponse::Deny)
                 .build()?;
 
             Ok(())

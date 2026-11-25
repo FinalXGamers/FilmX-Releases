@@ -108,7 +108,7 @@ pages.downloads = function (main) {
         '<div class="download-card__top"><div class="download-card__icon">' + icon('monitor', 24) + '</div>' +
           '<span class="download-card__tag">WINDOWS</span></div><h2>FilmX for Windows</h2>' +
         '<p>Install FilmX as a desktop app with Start Menu and desktop shortcuts.</p>' +
-        '<a class="btn btn--secondary" href="https://github.com/FinalXGamers/FilmX-Releases/releases/download/desktop-v1.0.4/FilmX-1.0.4-Windows-Setup.exe">' +
+        '<a class="btn btn--secondary" href="https://github.com/FinalXGamers/FilmX-Releases/releases/download/desktop-v1.0.5/FilmX-1.0.5-Windows-Setup.exe">' +
           icon('download', 16) + 'Download Windows app</a>' +
         '<span class="download-card__note">Windows 10 or later · 64-bit installer · Internet required</span>' +
       '</article>' +
@@ -116,7 +116,7 @@ pages.downloads = function (main) {
         '<div class="download-card__top"><div class="download-card__icon">' + icon('monitor', 24) + '</div>' +
           '<span class="download-card__tag">MACOS</span></div><h2>FilmX for Mac</h2>' +
         '<p>One universal disk image for Intel and Apple Silicon Macs.</p>' +
-        '<a class="btn btn--secondary" href="https://github.com/FinalXGamers/FilmX-Releases/releases/download/desktop-v1.0.4/FilmX-1.0.4-macOS.dmg">' +
+        '<a class="btn btn--secondary" href="https://github.com/FinalXGamers/FilmX-Releases/releases/download/desktop-v1.0.5/FilmX-1.0.5-macOS.dmg">' +
           icon('download', 16) + 'Download Mac app</a>' +
         '<span class="download-card__note">macOS 12 or later · Not signed/notarized; macOS may ask you to approve opening it</span>' +
       '</article>' +
@@ -124,7 +124,7 @@ pages.downloads = function (main) {
         '<div class="download-card__top"><div class="download-card__icon">' + icon('monitor', 24) + '</div>' +
           '<span class="download-card__tag">LINUX</span></div><h2>FilmX for Linux</h2>' +
         '<p>Run FilmX as a standalone AppImage on most 64-bit Linux distributions.</p>' +
-        '<a class="btn btn--secondary" href="https://github.com/FinalXGamers/FilmX-Releases/releases/download/desktop-v1.0.4/FilmX-1.0.4-Linux.AppImage">' +
+        '<a class="btn btn--secondary" href="https://github.com/FinalXGamers/FilmX-Releases/releases/download/desktop-v1.0.5/FilmX-1.0.5-Linux.AppImage">' +
           icon('download', 16) + 'Download Linux app</a>' +
         '<span class="download-card__note">64-bit AppImage · You may need to allow the file to run as an application</span>' +
       '</article>' +
@@ -327,7 +327,8 @@ pages.watch = function (main, a, q) {
       '<div class="srcbar"><label class="srcbar__lbl">Source</label>' +
       '<select class="select select--sm" id="srcSelect">' +
       servers.map(function (s) { return '<option value="' + esc(s.id) + '">' + esc(s.name) + '</option>'; }).join('') +
-      '</select><a class="btn btn--sm" id="extBtn" target="_blank" rel="noopener">' + icon('external', 13) + 'New tab</a></div>' +
+      '</select>' + (FMX.isAppSurface ? '' :
+        '<a class="btn btn--sm" id="extBtn" target="_blank" rel="noopener">' + icon('external', 13) + 'New tab</a>') + '</div>' +
       (isTV ? '<div class="panel" style="margin-top:16px"><div class="panel__hd"><h3>Episodes</h3></div>' +
         '<div class="panel__bd" id="epPanel"><div class="spinner"></div></div></div>' : '') + '</div>';
 

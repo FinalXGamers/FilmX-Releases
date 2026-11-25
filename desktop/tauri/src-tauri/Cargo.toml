@@ -1,6 +1,6 @@
 [package]
 name = "filmx-desktop"
-version = "1.0.4"
+version = "1.0.5"
 description = "FilmX desktop app"
 authors = ["FinalXGamers"]
 edition = "2021"
