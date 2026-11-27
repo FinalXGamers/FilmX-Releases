@@ -402,8 +402,13 @@ pages.watch = function (main, a, q) {
       var req = wrap.requestFullscreen || wrap.webkitRequestFullscreen;
       if (!req) return;
       var p = req.call(wrap);
+      var orientation = FMX.isNativeApp ? 'landscape' : 'portrait';
       var lock = function () {
-        try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('portrait').catch(function () {}); } catch (e) {}
+        try {
+          if (screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock(orientation).catch(function () {});
+          }
+        } catch (e) {}
       };
       if (p && p.then) p.then(lock).catch(lock); else lock();
     }
