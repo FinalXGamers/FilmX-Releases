@@ -106,6 +106,17 @@ pages.downloads = function (main) {
       '</article>' +
       '<article class="download-card">' +
         '<div class="download-card__top"><div class="download-card__icon">' + icon('monitor', 24) + '</div>' +
+          '<span class="download-card__tag">ANDROID TV</span></div><h2>FilmX for Android TV</h2>' +
+        '<p>Install the TV edition on Xiaomi TV and other Android TV devices. Navigate with your remote.</p>' +
+        '<a class="btn btn--secondary" href="https://github.com/FinalXGamers/FilmX-Releases/releases/download/tv-v1.0.0/FilmX-TV.apk" target="_blank" rel="noopener">' +
+          icon('download', 16) + 'Download TV APK</a>' +
+        '<div class="download-install-steps"><span><b>1</b>Download the APK to a USB drive.</span>' +
+          '<span><b>2</b>Open it with File Manager on your TV.</span>' +
+          '<span><b>3</b>Allow installs for File Manager if prompted.</span></div>' +
+        '<span class="download-card__note">Android TV 7.0 or later · Use the remote to navigate</span>' +
+      '</article>' +
+      '<article class="download-card">' +
+        '<div class="download-card__top"><div class="download-card__icon">' + icon('monitor', 24) + '</div>' +
           '<span class="download-card__tag">WINDOWS</span></div><h2>FilmX for Windows</h2>' +
         '<p>Install FilmX as a desktop app with Start Menu and desktop shortcuts.</p>' +
         '<a class="btn btn--secondary" href="https://github.com/FinalXGamers/FilmX-Releases/releases/download/desktop-v1.0.5/FilmX-1.0.5-Windows-Setup.exe">' +
